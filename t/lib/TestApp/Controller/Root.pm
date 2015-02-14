@@ -36,11 +36,11 @@ sub test_render : Local {
     my ($self, $c) = @_;
 
     my $out;
-    
+
     eval {
         $out = $c->stash->{message} = $c->view('TT::Pkgconfig')->render($c, $c->req->param('template'), {param => $c->req->param('param') || ''});
     };
-    
+
     if ($@) {
         $c->response->body($@);
         $c->response->status(403);
@@ -53,7 +53,7 @@ sub test_render : Local {
 sub test_msg : Local {
     my ($self, $c) = @_;
     my $tmpl = $c->req->param('msg');
-    
+
     $c->stash->{message} = $c->view('TT::Pkgconfig')->render($c, \$tmpl);
     $c->stash->{template} = 'test.tt';
 }

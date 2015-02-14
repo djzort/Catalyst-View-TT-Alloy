@@ -1,6 +1,9 @@
-package Catalyst::View::TT::Alloy;
+#!/bin/false
 
 use strict;
+
+package Catalyst::View::TT::Alloy;
+
 use base qw( Catalyst::View );
 
 use Carp qw( croak );
@@ -8,8 +11,6 @@ use Data::Dump qw( dump );
 use Path::Class;
 use Scalar::Util qw( weaken );
 use Template::Alloy qw( Compile Parse TT );
-
-our $VERSION = '0.00003';
 
 __PACKAGE__->mk_accessors('template');
 __PACKAGE__->mk_accessors('include_path');
@@ -34,28 +35,28 @@ Catalyst::View::TT::Alloy - Template::Alloy (TT) View Class
       # optional
       TEMPLATE_EXTENSION: '.tt'
       CATALYST_VAR: 'Catalyst'
-         
+
 # example render view in lib/MyApp/Controller/Root.pm
-    
+
     sub default : Private {
         my ( $self, $c ) = @_;
         $c->stash->{template} = 'message.tt2';
         $c->stash->{message}  = 'Hello World!';
         return;
     }
-    
+
     sub end : ActionClass('RenderView') {
     }
 
 # access variables from template
 
     The message is: [% message %].
-    
+
     # example when CATALYST_VAR is set to 'Catalyst'
-    Context is [% Catalyst %]          
-    The base is [% Catalyst.req.base %] 
-    The name is [% Catalyst.config.name %] 
-    
+    Context is [% Catalyst %]
+    The base is [% Catalyst.req.base %]
+    The name is [% Catalyst.config.name %]
+
     # example when CATALYST_VAR isn't set
     Context is [% c %]
     The base is [% base %]
@@ -99,12 +100,12 @@ sub new {
     }
 
     my $self = $class->next::method(
-        $c, { %$config }, 
+        $c, { %$config },
     );
 
     # Set base include paths. Local'd in render if needed
     $self->include_path($config->{INCLUDE_PATH});
-    
+
     $self->config($config);
 
     return $self;
@@ -150,23 +151,23 @@ sub render {
     my $config = $self->config;
     $config->{INCLUDE_PATH} = $self->include_path;
 
-    my $vars = { 
+    my $vars = {
         (ref $args eq 'HASH' ? %$args : %{ $c->stash() }),
         $self->_template_vars($c)
     };
 
-    local $config->{INCLUDE_PATH} = 
+    local $config->{INCLUDE_PATH} =
         [ @{ $vars->{additional_template_paths} }, @{ $config->{INCLUDE_PATH} } ]
         if ref $vars->{additional_template_paths};
 
-    # until Template::Alloy either gives us a public method to change 
-    # INCLUDE_PATH, or supports a coderef there, we need to create a 
+    # until Template::Alloy either gives us a public method to change
+    # INCLUDE_PATH, or supports a coderef there, we need to create a
     # new object for every call of render()
     my $tt = Template::Alloy->new($config);
     my $output;
 
     unless ( $tt->process( $template, $vars, \$output ) ) {
-        croak $tt->error;  
+        croak $tt->error;
     }
     else {
         return $output;
@@ -194,41 +195,41 @@ __END__
 
 =head1 DESCRIPTION
 
-This is the Catalyst view for the L<TT|Template> emulator 
+This is the Catalyst view for the L<TT|Template> emulator
 L<Template::Alloy>.
 
 Your application should define a view class which is a subclass of
-this module.  The easiest way to achieve this is using 
-C<script/myapp_create.pl> (replacing C<myapp> with the name of your 
+this module.  The easiest way to achieve this is using
+C<script/myapp_create.pl> (replacing C<myapp> with the name of your
 application).
 
     $ script/myapp_create.pl view TT::Alloy TT::Alloy
 
-You can either manually forward to the C<TT::Alloy> as normal, or use 
+You can either manually forward to the C<TT::Alloy> as normal, or use
 L<Catalyst::Action::RenderView> to do it for you.
 
     # In MyApp::Controller::Root
-    
+
     sub end : ActionClass('RenderView') { }
 
 =head2 RATIONAL
 
-L<Template::Alloy> is a pure-perl module which emulates most common 
-features of L<TT|Template>, and in some cases is faster too. See 
+L<Template::Alloy> is a pure-perl module which emulates most common
+features of L<TT|Template>, and in some cases is faster too. See
 L<Template::Alloy::TT> for details of which features are missing.
 
 L<Catalyst::View::TT::Alloy> is generally compatible with
-L<Catalyst::View::TT>. The C<TIMER> configuration option isn't supported, 
+L<Catalyst::View::TT>. The C<TIMER> configuration option isn't supported,
 and the C<paths()> alias to C<include_path()> has been removed.
 
-Although L<Template::Alloy> emulates several other 
-templating modules, the interface differs for each one. For this reason, 
+Although L<Template::Alloy> emulates several other
+templating modules, the interface differs for each one. For this reason,
 this module only provides the L<TT|Template> interface.
 
 =head2 DYNAMIC INCLUDE_PATH
 
 Sometimes it is desirable to modify INCLUDE_PATH for your templates at run time.
- 
+
 Additional paths can be added to the start of INCLUDE_PATH via the stash as
 follows:
 
@@ -250,25 +251,25 @@ checking and the chance of a memory leak:
 
     $c->view('TT')->include_path([ qw/ path another_path / ]);
 
-If you are calling C<render> directly then you can specify dynamic paths by 
+If you are calling C<render> directly then you can specify dynamic paths by
 having a C<additional_template_paths> key with a value of additonal directories
 to search. See L<CAPTURING TEMPLATE OUTPUT> for an example showing this.
 
 =head2 RENDERING VIEWS
 
 The view plugin renders the template specified in the C<template>
-item in the stash.  
+item in the stash.
 
     sub message : Global {
         my ( $self, $c ) = @_;
-        
+
         $c->stash->{template} = 'message.tt2';
-        
+
         $c->forward('MyApp::View::TT::Alloy');
     }
 
-If C<template> isn't defined, then it builds the filename from 
-C<Catalyst/action> and the C<TEMPLATE_EXTENSION> config setting. 
+If C<template> isn't defined, then it builds the filename from
+C<Catalyst/action> and the C<TEMPLATE_EXTENSION> config setting.
 In the above example, this would be C<message>.
 
 The items defined in the stash are passed to L<Template::Alloy> for
@@ -306,7 +307,7 @@ L<Catalyst::Plugin::Email> and the L<render> method:
 
   sub send_email : Local {
     my ($self, $c) = @_;
-    
+
     $c->email(
       header => [
         To      => 'me@localhost',
@@ -332,7 +333,7 @@ The constructor for the TT::Alloy view.
 =item process
 
 Renders the template specified in C<< $c->stash->{template} >> or
-C<< $c->action >> (the private name of the matched action.  Calls C<render> 
+C<< $c->action >> (the private name of the matched action.  Calls C<render>
 to perform actual rendering. Output is stored in C<< $c->response->body >>.
 
 =item render
@@ -341,8 +342,8 @@ Arguments: ($c, $template, \%args)
 
 Renders the given template and returns output, or croaks on error.
 
-The template variables are set to C<%$args> if $args is a hashref, or 
-$C<< $c->stash >> otherwise. In either case the variables are augmented with 
+The template variables are set to C<%$args> if $args is a hashref, or
+$C<< $c->stash >> otherwise. In either case the variables are augmented with
 C<base> set to C< << $c->req->base >>, C<c> to C<$c> and C<name> to
 C<< $c->config->{name} >>. Alternately, the C<CATALYST_VAR> configuration item
 can be defined to specify the name of a template variable through which the
@@ -356,7 +357,7 @@ the TT configuration hash, or to set the options as below:
 
 =over 2
 
-=item C<CATALYST_VAR> 
+=item C<CATALYST_VAR>
 
 Allows you to change the name of the Catalyst context object. If set, it will also
 remove the base and name aliases, so you will have access them through <context>.
@@ -378,15 +379,15 @@ F<message.tt2>:
 
 =item C<TEMPLATE_EXTENSION>
 
-A sufix to add when building the template name, when 
+A sufix to add when building the template name, when
 C<< $c->stash->{template} >> is not set.
 
 For example:
 
   package MyApp::Controller::Test;
-  sub test : Local { .. } 
+  sub test : Local { .. }
 
-Would by default look for a template in C<< <root>/test/test >>. 
+Would by default look for a template in C<< <root>/test/test >>.
 
 If you set TEMPLATE_EXTENSION to '.tt', it will look for
 C<< <root>/test/test.tt >>.
@@ -408,10 +409,9 @@ Catalyst Mailing List:
 
 L<http://lists.rawmode.org/mailman/listinfo/catalyst>
 
-=head1 SUBVERSION REPOSITORY
+=head1 GIT REPOSITORY
 
-The publicly viewable subversion code repository is at 
-L<http://html-formfu.googlecode.com/svn/trunk/Catalyst-View-TT-Alloy>.
+L<https://github.com/djzort/Catalyst-View-TT-Alloy>
 
 =head1 SEE ALSO
 
@@ -435,9 +435,11 @@ Andy Wardley, C<abw@cpan.org>
 
 Moritz Onken, C<onken@netcubed.de>
 
+Dean Hamstead C<dean@bytefoundry.com.au>
+
 =head1 COPYRIGHT
 
-This program is free software, you can redistribute it and/or modify it 
+This program is free software, you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
 =cut

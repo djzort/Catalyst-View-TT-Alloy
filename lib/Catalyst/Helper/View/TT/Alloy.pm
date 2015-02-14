@@ -1,6 +1,7 @@
-package Catalyst::Helper::View::TT::Alloy;
+#!/bin/false
 
 use strict;
+package Catalyst::Helper::View::TT::Alloy;
 
 =head1 NAME
 
@@ -67,7 +68,7 @@ __END__
 
 =head1 DESCRIPTION
 
-TT::Alloy View for [% app %]. 
+TT::Alloy View for [% app %].
 
 =head1 AUTHOR
 
