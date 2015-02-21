@@ -1,6 +1,7 @@
 #!/bin/false
 
 use strict;
+use warnings;
 
 package Catalyst::View::TT::Alloy;
 
@@ -9,7 +10,7 @@ use base qw( Catalyst::View );
 use Carp qw( croak );
 use Data::Dump qw( dump );
 use Path::Class;
-use Scalar::Util qw( weaken );
+use Scalar::Util qw( weaken blessed );
 use Template::Alloy qw( Compile Parse TT );
 
 __PACKAGE__->mk_accessors('template');
@@ -127,11 +128,21 @@ sub process {
         $output = $self->render($c, $template);
     };
 
-    if ($@) {
-        my $error = qq/Couldn't render template "$template"/;
-        $c->log->error($@);
-        $c->error($@);
-        return 0;
+    if ( my $error = $@ ) {
+        my $error_string = qq/Couldn't render template "$template"/;
+
+        #Mostly copied from Catalyst::View::TT's error handling
+        #Log::Dispatch barfs on ARRAY REF errors
+        if ( blessed($error) && $error->isa('Template::Alloy::Exception') ) {
+            $error = "$error_string: $error";
+            $c->log->error($error);
+            $c->error($error);
+        }
+        else {
+            $c->log->error($error);
+            $c->error($error);
+            return 0;
+        }
     }
 
     unless ( $c->response->content_type ) {
