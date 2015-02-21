@@ -1,5 +1,8 @@
 Revision history for Perl extension Catalyst::View::TT::Alloy.
 
+        - Fixed error handling to work with Log::Dispatch,
+            and behave like Catalyst::View::TT.
+
 0.00004  2015-02-14
         - Changes to use Dist::Zilla for releases
 
