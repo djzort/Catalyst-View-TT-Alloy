@@ -5,7 +5,7 @@ use warnings;
 
 package Catalyst::View::TT::Alloy;
 
-use base qw( Catalyst::View );
+use parent qw( Catalyst::View );
 
 use Carp qw( croak );
 use Data::Dump qw( dump );

@@ -56,7 +56,7 @@ __compclass__
 package [% class %];
 
 use strict;
-use base 'Catalyst::View::TT::Alloy';
+use parent 'Catalyst::View::TT::Alloy';
 
 1;
 

@@ -1,5 +1,10 @@
 Revision history for Perl extension Catalyst::View::TT::Alloy.
 
+0.00005_01  2015-02-21
+        - It's my birthday
+        - use parent instead
+        - Adjust stated dependencies
+
 0.00005  2015-02-16
         - Changes to use Dist::Zilla for releases
         - Fixed error handling to work with Log::Dispatch,
